@@ -1,4 +1,4 @@
-import type { CrudModalField } from '~/types';
+import type { CrudModalField, PaginatorInfo } from '~/types';
 import { useGraphQLQuery } from '~/composables/useGraphQLQuery';
 import {
     handleGraphQLError,
@@ -14,8 +14,9 @@ export async function useModelCrud(model: string, fields: CrudModalField[]) {
     const modalFields = ref(fields);
     const isLoading = ref(false);
 
-    const page = inject('currentPage', 1);
-    const perPage = inject('perPage', 50);
+    const currentPage = 1;
+    const perPage = 50;
+    const paginatorInfo = ref<PaginatorInfo>();
 
     const {
         showModal,
@@ -27,6 +28,7 @@ export async function useModelCrud(model: string, fields: CrudModalField[]) {
         closeCrudModal,
     } = useCrudModal(model, checkAuth());
 
+    // GraphQL Dynamic Queries & Mutations
     const { PAGINATE_QUERY, UPSERT_MUTATION, DELETE_MUTATION } =
         await useGraphQLQuery(model);
 
@@ -34,12 +36,14 @@ export async function useModelCrud(model: string, fields: CrudModalField[]) {
         result,
         refetch,
         loading: queryLoading,
-    } = useQuery(PAGINATE_QUERY, { first: perPage, page: page });
+    } = useQuery(PAGINATE_QUERY, { first: perPage, page: currentPage });
 
+    // GraphQL Mutations
     const { mutate: upsertMutation, loading: upsertLoading } =
         useMutation(UPSERT_MUTATION);
     const { mutate: deleteMutation, loading: deleteLoading } =
         useMutation(DELETE_MUTATION);
+
     const fetchDataPaginate = async (first: number, page: number) => {
         checkAuth()
             ? ((isLoading.value = true),
@@ -60,7 +64,7 @@ export async function useModelCrud(model: string, fields: CrudModalField[]) {
                       { type: 'success' },
                   ),
                   closeCrudModal(),
-                  fetchDataPaginate(perPage, page))
+                  fetchDataPaginate(perPage, currentPage))
                 : toasts('You are not authorized to create.', {
                       type: 'warning',
                   });
@@ -121,26 +125,21 @@ export async function useModelCrud(model: string, fields: CrudModalField[]) {
 
     const actions = crudActions(openEditModal, deleteModel, toasts);
 
-    watch(
-        () => result.value,
-        (newResult) => {
-            if (newResult) {
-                modelData.value = newResult[`${pluralName}Paginate`].data;
-            }
-        },
-        { immediate: true },
-    );
+    const queryPaginatedData = computed(() => {
+        if (result.value) {
+            const queryResult = result.value[`${pluralName}Paginate`];
+            modelData.value = queryResult.data;
+            paginatorInfo.value = queryResult.paginatorInfo;
+        }
+        return modelData.value;
+    });
 
-    watch(
-        [queryLoading, upsertLoading, deleteLoading],
-        ([newQueryLoading, newUpsertLoading, newDeleteLoading]) => {
-            isLoading.value =
-                newQueryLoading || newUpsertLoading || newDeleteLoading;
-        },
+    const loadingValue = computed(
+        () => queryLoading.value || upsertLoading.value || deleteLoading.value,
     );
 
     return {
-        modelData,
+        modelData: queryPaginatedData,
         selectedModel,
         showModal,
         modalTitle,
@@ -150,9 +149,10 @@ export async function useModelCrud(model: string, fields: CrudModalField[]) {
         handleCrudSubmit,
         closeCrudModal,
         fetchDataPaginate,
-        perPage,
-        page,
-        isLoading,
+        isLoading: loadingValue,
         actions,
+        currentPage,
+        perPage,
+        paginatorInfo,
     };
 }

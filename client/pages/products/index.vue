@@ -8,7 +8,9 @@
                 <template #actions>
                     <TableCRUD
                         :on-create="openCreateModal"
-                        :on-refresh="() => fetchDataPaginate(perPage, page)"
+                        :on-refresh="
+                            () => fetchDataPaginate(perPage, currentPage)
+                        "
                     />
                 </template>
             </TableHeader>
@@ -18,6 +20,7 @@
                 :is-loading="isLoading"
                 :data="modelData"
                 :actions="actions"
+                :paginator-info="paginatorInfo"
             />
 
             <TableCrudModal
@@ -71,12 +74,13 @@ const modelFields: CrudModalField[] = [
     {
         name: 'category_id',
         label: 'Category',
-        type: 'select',
+        type: 'combobox',
         model: 'Category',
         queryName: 'categoryFilter',
         optionTitle: 'name',
     },
     { name: 'image', label: 'Image URL', type: 'text' },
+    { name: 'image', label: 'Image Upload', type: 'file' },
     { name: 'description', label: 'Description', type: 'textarea' },
     { name: 'sku', label: 'SKU', type: 'text' },
     { name: 'price', label: 'Price', type: 'text' },
@@ -94,9 +98,10 @@ const {
     closeCrudModal,
     fetchDataPaginate,
     perPage,
-    page,
+    currentPage,
     isLoading,
     actions,
+    paginatorInfo,
 } = await useModelCrud(modelName, modelFields);
 
 const handleSubmit = async (formData: any) => {
@@ -105,8 +110,4 @@ const handleSubmit = async (formData: any) => {
     }
     handleCrudSubmit(formData);
 };
-
-onMounted(() => {
-    fetchDataPaginate(perPage, page);
-});
 </script>

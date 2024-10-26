@@ -51,53 +51,80 @@
             </Table>
         </div>
 
-        <!-- Pagination -->
-        <div class="flex justify-start items-center p-2 mt-2">
-            <Pagination
-                v-slot="{ page }"
-                :total="totalItems"
-                :page="currentPage"
-                :sibling-count="1"
-                show-edges
-                :default-page="1"
-                @page-change="onPageChange"
-            >
-                <PaginationList
-                    v-slot="{ items }"
-                    class="flex items-center gap-1"
-                >
-                    <PaginationFirst />
-                    <PaginationPrev />
-
-                    <template v-for="(item, index) in items">
-                        <PaginationListItem
-                            v-if="item.type === 'page'"
-                            :key="index"
-                            :value="item.value"
-                            as-child
+        <div class="flex justify-between items-center p-2 mt-2">
+            <div class="flex items-center justify-center gap-2">
+                <div>
+                    <select
+                        v-model="perPage"
+                        class="w-full px-3 py-1.5 rounded bg-secondary outline-none"
+                    >
+                        <option
+                            v-for="option in perPageOptions"
+                            :key="option"
+                            :value="option"
+                            class="text-sm"
                         >
-                            <Button
-                                class="w-10 h-10 p-0"
-                                :variant="
-                                    item.value === currentPage
-                                        ? 'default'
-                                        : 'outline'
-                                "
-                            >
-                                {{ item.value }}
-                            </Button>
-                        </PaginationListItem>
-                        <PaginationEllipsis
-                            v-else
-                            :key="item.type"
-                            :index="index"
-                        />
-                    </template>
+                            {{ option }}
+                        </option>
+                    </select>
+                </div>
+                <Label class="text-sm font-bold">Per Page</Label>
+            </div>
 
-                    <PaginationNext />
-                    <PaginationLast />
-                </PaginationList>
-            </Pagination>
+            <div class="flex justify-between items-center gap-4">
+                <div class="text-sm text-muted-foreground">
+                    Showing {{ paginatorInfo?.perPage }} of
+                    {{ paginatorInfo?.total }} items
+                </div>
+
+                <Pagination
+                    v-slot="{ page }"
+                    :total="paginatorInfo?.total || 0"
+                    :page="paginatorInfo?.currentPage || 1"
+                    :per-page="paginatorInfo?.perPage || 10"
+                    :sibling-count="1"
+                    show-edges
+                    :default-page="1"
+                    @page-change="onPageChange"
+                >
+                    <PaginationList
+                        v-slot="{ items }"
+                        class="flex items-center gap-1"
+                    >
+                        <PaginationFirst />
+                        <PaginationPrev />
+
+                        <template v-for="(item, index) in items">
+                            <PaginationListItem
+                                v-if="item.type === 'page'"
+                                :key="index"
+                                :value="item.value"
+                                as-child
+                            >
+                                <Button
+                                    class="w-10 h-10 p-0"
+                                    :variant="
+                                        item.value ===
+                                        paginatorInfo?.currentPage
+                                            ? 'default'
+                                            : 'outline'
+                                    "
+                                >
+                                    {{ item.value }}
+                                </Button>
+                            </PaginationListItem>
+                            <PaginationEllipsis
+                                v-else
+                                :key="item.type"
+                                :index="index"
+                            />
+                        </template>
+
+                        <PaginationNext />
+                        <PaginationLast />
+                    </PaginationList>
+                </Pagination>
+            </div>
         </div>
     </div>
 </template>
@@ -122,24 +149,30 @@ import {
     TableRow,
 } from '~/components/ui/table';
 import { Button } from '~/components/ui/button';
+import type { PaginatorInfo } from '~/types';
 
 defineProps<{
     headers: { key: string; label: string; class?: string }[];
     data: Record<string, any>[];
     actions?: { icon: string; handler: (item: any) => void; class?: string }[];
     primaryKey: string;
+    paginatorInfo?: PaginatorInfo;
 }>();
 
-// TODO: fix pagination
-const totalItems = ref(100);
-const currentPage = ref(1);
 const perPage = ref(10);
+const perPageOptions = [10, 25, 50, 100, 500];
 
-provide('totalItems', totalItems);
-provide('currentPage', currentPage);
-provide('perPage', perPage);
+const perPageSet = (value: number) => {
+    perPage.value = value;
+};
+
+provide('perPageSet', perPageSet);
+
+const emit = defineEmits<{
+    (e: 'page-change', page: number): void;
+}>();
 
 const onPageChange = (page: number) => {
-    currentPage.value = page;
+    emit('page-change', page);
 };
 </script>

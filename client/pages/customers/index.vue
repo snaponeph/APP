@@ -8,7 +8,9 @@
                 <template #actions>
                     <TableCRUD
                         :on-create="openCreateModal"
-                        :on-refresh="() => fetchDataPaginate(perPage, page)"
+                        :on-refresh="
+                            () => fetchDataPaginate(perPage, currentPage)
+                        "
                     />
                 </template>
             </TableHeader>
@@ -18,6 +20,7 @@
                 :is-loading="isLoading"
                 :data="modelData"
                 :actions="actions"
+                :paginator-info="paginatorInfo"
             />
 
             <TableCrudModal
@@ -49,8 +52,7 @@ const icon = 'mdi:package-variant-closed';
 const modelHeaders: Headers[] = [
     { key: 'id', label: 'ID' },
     {
-        key: (val) =>
-            val.user?.complete_name ? val.user.complete_name : val.name,
+        key: (val) => (val.user?.name ? val.user.name : val.name),
         label: 'Name',
     },
     { key: 'phone', label: 'Phone' },
@@ -65,12 +67,12 @@ const modelFields: CrudModalField[] = [
         type: 'text',
     },
     {
-        name: 'user_id',
+        name: 'user',
         label: 'Customer Account',
-        type: 'select',
+        type: 'combobox',
         model: 'User',
         queryName: 'filterCustomer',
-        optionTitle: 'complete_name',
+        optionTitle: 'name',
     },
     { name: 'phone', label: 'Phone', type: 'text' },
     { name: 'address', label: 'Address', type: 'text' },
@@ -89,12 +91,9 @@ const {
     closeCrudModal,
     fetchDataPaginate,
     perPage,
-    page,
+    currentPage,
     isLoading,
     actions,
+    paginatorInfo,
 } = await useModelCrud(modelName, modelFields);
-
-onMounted(() => {
-    fetchDataPaginate(perPage, page);
-});
 </script>

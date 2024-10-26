@@ -1,3 +1,16 @@
+export type AuthUser = {
+    id: string;
+    role: any;
+    first_name: string;
+    middle_name: string;
+    last_name: string;
+    name: string;
+};
+
+export type AuthState = {
+    user: AuthUser;
+};
+
 export type User = {
     id?: string;
     name?: string;
@@ -24,6 +37,7 @@ export type Stock = {
 };
 
 export type CrudButton = {
+    id: string;
     iconName: string;
     iconSize: number;
     iconClass: string;
@@ -152,4 +166,11 @@ export type LinkItem = {
     items?: LinkItem[];
     model?: string;
     roles?: number[] | null;
+};
+
+export type PaginatorInfo = {
+    currentPage: number;
+    lastPage: number;
+    perPage: number;
+    total: number;
 };

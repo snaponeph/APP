@@ -4,13 +4,23 @@
             <Title>{{ pageTitle }}</Title>
         </Head>
         <main v-auto-animate class="max-w-screen-2xl mx-auto">
-            <TableHeader :title="pageTitle" :icon="icon" />
+            <TableHeader :title="pageTitle" :icon="icon">
+                <template #actions>
+                    <TableCRUD
+                        :on-refresh="
+                            () => fetchDataPaginate(perPage, currentPage)
+                        "
+                        :disabled-buttons="['create']"
+                    />
+                </template>
+            </TableHeader>
 
             <TableContent
                 :headers="modelHeaders"
                 :is-loading="isLoading"
                 :data="modelData"
                 :actions="actions"
+                :paginator-info="paginatorInfo"
             />
 
             <TableCrudModal
@@ -93,12 +103,13 @@ const {
     closeCrudModal,
     fetchDataPaginate,
     perPage,
-    page,
+    currentPage,
     isLoading,
     actions,
+    paginatorInfo,
 } = await useModelCrud(modelName, modelFields);
 
-onMounted(() => {
-    fetchDataPaginate(perPage, page);
+onMounted(async () => {
+    await fetchDataPaginate(perPage, currentPage);
 });
 </script>

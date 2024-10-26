@@ -50,7 +50,7 @@
                         :min="field.min"
                         :max="field.max"
                         :step="field.step"
-                        class="mt-1 block w-full rounded-md border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-secondary text-foreground"
+                        class="mt-1 block w-full rounded border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-secondary text-foreground"
                         @keyup.enter="handleSubmit"
                     />
 
@@ -59,7 +59,18 @@
                         :id="field.name"
                         v-model="form[field.name]"
                         :required="field.required"
-                        class="mt-1 block w-full rounded-md border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-secondary text-foreground"
+                        class="mt-1 block w-full rounded border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-secondary text-foreground"
+                        @keyup.enter="handleSubmit"
+                    />
+
+                    <!-- File Field -->
+                    <input
+                        v-if="field.type === 'file'"
+                        :id="field.name"
+                        type="file"
+                        :required="field.required"
+                        class="mt-1 block w-full rounded border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-secondary text-foreground"
+                        v-on="form[field.name]"
                         @keyup.enter="handleSubmit"
                     />
 
@@ -70,15 +81,77 @@
                         v-model="form[field.name]"
                         type="checkbox"
                         :required="field.required"
-                        class="mt-1 mr-2 rounded-md border-none outline-none shadow-sm sm:text-sm"
+                        class="mt-1 mr-2 rounded border-none outline-none shadow-sm sm:text-sm"
                     />
 
+                    <!-- Combobox Field -->
+                    <template v-if="field.type === 'combobox'">
+                        <ComboboxRoot
+                            :id="field.name"
+                            v-model="form[field.name]"
+                            class="relative"
+                        >
+                            <ComboboxAnchor
+                                class="mt-1 w-full rounded border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-secondary text-foreground flex justify-between items-center"
+                            >
+                                <ComboboxInput
+                                    class="!bg-transparent outline-none w-full text-grass11 h-full selection:bg-grass5 placeholder-mauve8"
+                                    :placeholder="`Select ${field.model}`"
+                                />
+                                <ComboboxTrigger>
+                                    <Icon
+                                        name="mdi:chevron-down"
+                                        class="size-4"
+                                    />
+                                </ComboboxTrigger>
+                            </ComboboxAnchor>
+
+                            <ComboboxContent
+                                class="absolute z-10 w-full mt-0.5 bg-secondary overflow-y-scroll max-h-[400px] rounded"
+                            >
+                                <ComboboxViewport class="p-[5px]">
+                                    <ComboboxEmpty
+                                        class="text-mauve8 text-xs font-medium text-center py-2"
+                                    />
+
+                                    <ComboboxGroup>
+                                        <ComboboxItem
+                                            v-for="option in getData(
+                                                field.model as string,
+                                            )"
+                                            :key="option.id"
+                                            :value="option.id"
+                                            class="flex items-center h-[25px] pr-[35px] pl-[25px] relative select-none rounded hover:bg-accent"
+                                        >
+                                            <ComboboxItemIndicator
+                                                class="absolute left-0 w-[25px] inline-flex items-center justify-center"
+                                            >
+                                                <Icon name="mdi:check" />
+                                            </ComboboxItemIndicator>
+                                            <span>
+                                                {{
+                                                    option[
+                                                        field.optionTitle as string
+                                                    ]
+                                                }}
+                                            </span>
+                                        </ComboboxItem>
+                                        <ComboboxSeparator
+                                            class="h-[1px] bg-grass6 m-[5px]"
+                                        />
+                                    </ComboboxGroup>
+                                </ComboboxViewport>
+                            </ComboboxContent>
+                        </ComboboxRoot>
+                    </template>
+
+                    <!-- Select Field -->
                     <select
                         v-if="field.type === 'select'"
                         :id="field.name"
                         v-model="form[field.name]"
                         :required="field.required"
-                        class="mt-1 block w-full rounded-md border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-secondary text-foreground"
+                        class="mt-1 block w-full rounded border-none outline-none p-2 shadow-sm sm:text-sm bg-secondary text-foreground"
                     >
                         <option selected value="">
                             Select {{ field.model }}
@@ -98,7 +171,7 @@
                         :id="field.name"
                         v-model="form[field.name]"
                         :required="field.required"
-                        class="mt-1 block w-full rounded-md border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-gray-200 bg-secondary text-foreground"
+                        class="mt-1 block w-full rounded border-none outline-none px-3 p-2 shadow-sm sm:text-sm bg-gray-200 bg-secondary text-foreground"
                     >
                         <option disabled value="">
                             Select {{ field.model }}
@@ -139,7 +212,7 @@
                     <Button variant="ghost" @click="closeModal">
                         Cancel
                     </Button>
-                    <Button type="submit" class="bg-primary dark:bg-secondary">
+                    <Button type="submit" class="bg-emerald-700">
                         {{ submitButtonText }}
                     </Button>
                 </div>
@@ -150,8 +223,23 @@
 
 <script setup lang="ts">
 import { vOnClickOutside } from '@vueuse/components';
+import {
+    ComboboxAnchor,
+    ComboboxContent,
+    ComboboxEmpty,
+    ComboboxGroup,
+    ComboboxInput,
+    ComboboxItem,
+    ComboboxItemIndicator,
+    ComboboxLabel,
+    ComboboxRoot,
+    ComboboxSeparator,
+    ComboboxTrigger,
+    ComboboxViewport,
+} from 'radix-vue';
 import { Button } from '~/components/ui/button';
 import type { CrudModalField, Field } from '~/types';
+import { roles } from '~/utils/authHelpers';
 
 const props = defineProps({
     visible: Boolean,
@@ -174,13 +262,6 @@ const props = defineProps({
     form: Object,
     model: String,
 });
-
-const roles = [
-    { id: 0, name: 'User' },
-    { id: 1, name: 'Admin' },
-    { id: 2, name: 'Staff' },
-    { id: 3, name: 'Store Manager' },
-];
 
 const showPassword = ref<Record<string, boolean>>({});
 const emit = defineEmits(['submit', 'close']);
@@ -216,12 +297,17 @@ const getInputType = (field: Field) => {
     return field.type;
 };
 
-// TODO: fix types
-const data: any = ref({});
+const data: Ref<Record<string, any>> = ref({});
+const getData = (model: string) => data.value[model.toLowerCase()] || [];
+
 onMounted(async () => {
     if (Array.isArray(props.fields)) {
         for (const field of props.fields) {
-            if (field.type === 'select' && field.model && field.queryName) {
+            if (
+                (field.type === 'select' || field.type === 'combobox') &&
+                field.model &&
+                field.queryName
+            ) {
                 const queryModule = await import(`~/graphql/${field.model}.ts`);
                 const query = queryModule[field.queryName];
                 if (query) {
@@ -234,8 +320,4 @@ onMounted(async () => {
         }
     }
 });
-
-function getData(model: string) {
-    return data.value[model.toLowerCase()] || [];
-}
 </script>

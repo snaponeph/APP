@@ -5,17 +5,26 @@ export const userFilter = gql`
     query userFilter($search: String) {
         users(search: $search) {
             id
-            complete_name
+            name
             email
         }
     }
 `;
 
+export const users = gql`
+    query users {
+        users {
+            ...user
+        }
+    }
+    ${userFragment}
+`;
+
 export const filterCustomer = gql`
-    query filterCustomer {
-        filterCustomer(filter: "role = 0") {
+    query filterCustomer($limit: Int) {
+        filterCustomer(limit: $limit, filter: "role = 0") {
             id
-            complete_name
+            name
             email
         }
     }
