@@ -1,5 +1,21 @@
 import gql from 'graphql-tag';
 
+export const logFragment = gql`
+    fragment log on Log {
+        id
+        ip_address
+        browser
+        event
+        user {
+            id
+            name
+        }
+        created_at
+        deleted_at
+        updated_at
+    }
+`;
+
 export const userFragment = gql`
     fragment user on User {
         id

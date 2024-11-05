@@ -1,0 +1,32 @@
+type Log {
+    id: ID!
+    user: User @belongsTo
+    event: String
+    ip_address: String
+    browser: String
+    created_at: DateTime
+    updated_at: DateTime
+    deleted_at: DateTime
+}
+
+input LogInput {
+    user: ConnectUserRelation
+    event: String
+    ip_address: String
+    browser: String
+}
+
+extend type Query {
+    logs(
+        search: String @scope(name: "search")
+    ): [Log!]! @all
+    logsPaginate(
+        search: String @scope(name: "search")
+    ): [Log!]! @paginate
+}
+
+extend type Mutation {
+    upsertLog(input: LogInput! @spread): Log @upsert
+    deleteLog(id: [ID!] @eq): [Log] @delete
+    restoreLog(id: [ID!] @eq): [Log] @restore
+}
