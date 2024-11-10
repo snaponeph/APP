@@ -33,6 +33,15 @@
                 @submit="handleCrudSubmit"
                 @close="closeCrudModal"
             />
+
+            <TableConfirmationModal
+                v-if="isConfirmModalOpen"
+                :is-open="isConfirmModalOpen"
+                title="Confirm Deletion"
+                :message="`Delete ${selectedModel?.product.name || modelName.name}?`"
+                @confirm="confirmDeletion"
+                @cancel="cancelDeletion"
+            />
         </main>
     </div>
 </template>
@@ -48,7 +57,7 @@ definePageMeta({
 
 const modelName = 'inventory';
 const pageTitle = getPluralName(toTitleCase(modelName));
-const icon = 'mdi:package-variant-closed';
+const icon = 'solar:box-minimalistic-linear';
 
 const modelHeaders: Headers[] = [
     { key: 'id', label: 'ID' },
@@ -79,6 +88,9 @@ const {
     modalButtonText,
     modalFields,
     openCreateModal,
+    isConfirmModalOpen,
+    confirmDeletion,
+    cancelDeletion,
     handleCrudSubmit,
     closeCrudModal,
     fetchDataPaginate,

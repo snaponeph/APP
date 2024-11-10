@@ -33,6 +33,15 @@
                 @submit="handleCrudSubmit"
                 @close="closeCrudModal"
             />
+
+            <TableConfirmationModal
+                v-if="isConfirmModalOpen"
+                :is-open="isConfirmModalOpen"
+                title="Confirm Deletion"
+                :message="`Delete ${selectedModel?.name || modelName.name}?`"
+                @confirm="confirmDeletion"
+                @cancel="cancelDeletion"
+            />
         </main>
     </div>
 </template>
@@ -47,7 +56,7 @@ definePageMeta({
 
 const modelName = 'category';
 const pageTitle = getPluralName(toTitleCase(modelName));
-const icon = 'mdi:category';
+const icon = 'solar:filter-outline';
 
 const modelHeaders: Headers[] = [
     { key: 'id', label: 'ID' },
@@ -68,6 +77,9 @@ const {
     modalButtonText,
     modalFields,
     openCreateModal,
+    isConfirmModalOpen,
+    confirmDeletion,
+    cancelDeletion,
     handleCrudSubmit,
     closeCrudModal,
     fetchDataPaginate,

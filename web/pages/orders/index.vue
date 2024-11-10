@@ -19,7 +19,7 @@
                 :headers="modelHeaders"
                 :is-loading="isLoading"
                 :data="modelData"
-                :actions="actions"
+                :actions="customActions"
                 :paginator-info="paginatorInfo"
             />
         </main>
@@ -36,7 +36,7 @@ definePageMeta({
 
 const modelName = 'order';
 const pageTitle = getPluralName(toTitleCase(modelName));
-const icon = 'mdi:cart-outline';
+const icon = 'solar:cart-outline';
 
 const modelHeaders: Headers[] = [
     { key: 'id', label: 'ID' },
@@ -88,6 +88,14 @@ const {
     actions,
     paginatorInfo,
 } = await useModelCrud(modelName, modelFields);
+
+const customActions = actions.map((action) => {
+    action.name === 'delete' || action.name === 'edit'
+        ? (action.showButton = false)
+        : null;
+    action.name === 'print' ? (action.showButton = true) : null;
+    return action;
+});
 
 onMounted(async () => {
     await fetchDataPaginate(perPage, currentPage);
