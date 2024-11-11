@@ -22,12 +22,21 @@
                 :actions="customActions"
                 :paginator-info="paginatorInfo"
             />
+
+            <ModalView
+                v-if="showModal"
+                :visible="showModal"
+                :title="modalTitle"
+                :data="selectedModel"
+                @close="closeCrudModal"
+            />
         </main>
     </div>
 </template>
 
 <script setup lang="ts">
 import type { Headers, CrudModalField } from '~/types';
+
 import { useModelCrud } from '~/composables/useModelCrud';
 
 definePageMeta({
@@ -84,6 +93,10 @@ const {
     fetchDataPaginate,
     perPage,
     currentPage,
+    showModal,
+    modalTitle,
+    selectedModel,
+    closeCrudModal,
     isLoading,
     actions,
     paginatorInfo,
@@ -95,9 +108,5 @@ const customActions = actions.map((action) => {
         : null;
     action.name === 'print' ? (action.showButton = true) : null;
     return action;
-});
-
-onMounted(async () => {
-    await fetchDataPaginate(perPage, currentPage);
 });
 </script>
