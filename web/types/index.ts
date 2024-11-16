@@ -48,6 +48,7 @@ export type CrudButton = {
 export type CartProduct = {
     id?: any;
     item?: string | any;
+    image?: string | undefined;
     price?: number | undefined;
     qty?: number | undefined;
     amount?: number | undefined;
@@ -172,8 +173,8 @@ export type LinkItem = {
 };
 
 export type PaginatorInfo = {
-    currentPage: number;
-    lastPage: number;
-    perPage: number;
-    total: number;
+    currentPage?: number;
+    lastPage?: number;
+    perPage?: number;
+    total?: number;
 };

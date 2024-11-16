@@ -5,12 +5,16 @@
                 class="absolute flex-col top-64 flex justify-center items-center text-xl text-gray-500 dark:text-gray-300 mt-4"
             >
                 <template v-if="isLoading">
-                    <SpinnerTadpole class="size-16 text-green-500" />
+                    <BlocksWave class="size-16 text-primary dark:text-accent" />
                     <p class="animate-pulse">Fetching data</p>
                 </template>
 
                 <div v-else class="flex flex-col items-center">
-                    <Icon name="mdi:warning" class="text-red-500" size="65" />
+                    <Icon
+                        name="mdi:warning"
+                        class="text-destructive"
+                        size="65"
+                    />
                     <span>No data</span>
                 </div>
             </div>
@@ -24,6 +28,11 @@
                 primary-key="id"
                 class="w-full"
                 :paginator-info="paginatorInfo"
+                :first-page="firstPage"
+                :prev-page="prevPage"
+                :next-page="nextPage"
+                :last-page="lastPage"
+                :number-page="numberPage"
             />
         </template>
 
@@ -44,12 +53,19 @@
 </template>
 
 <script setup>
+import BlocksWave from '~/components/spinner/BlocksWave.vue';
+
 defineProps({
     isLoading: Boolean,
     data: Array,
     headers: Array,
     actions: Array,
     paginatorInfo: Object | null,
+    firstPage: Function,
+    prevPage: Function,
+    nextPage: Function,
+    lastPage: Function,
+    numberPage: Function,
 });
 
 const auth = useAuth();

@@ -81,7 +81,7 @@
             >
                 <div class="flex items-center justify-center">
                     <Icon
-                        name="solar:add-square-linear"
+                        name="solar:add-circle-bold"
                         size="50"
                         class="text-background"
                     />
@@ -92,9 +92,9 @@
 </template>
 
 <script setup lang="ts">
+import { noImage } from '~/composables/useConstant';
 import { useCart } from '~/stores/useCart';
 
-const noImage = 'https://static.thenounproject.com/png/340719-200.png';
 const cartStore = useCart();
 
 // TODO: fix types

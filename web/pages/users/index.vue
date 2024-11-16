@@ -21,6 +21,11 @@
                 :data="modelData"
                 :actions="actions"
                 :paginator-info="paginatorInfo"
+                :first-page="firstPage"
+                :prev-page="prevPage"
+                :next-page="nextPage"
+                :last-page="lastPage"
+                :number-page="numberPage"
             />
 
             <ModalCRUD
@@ -55,7 +60,7 @@ definePageMeta({
 
 const modelName = 'user';
 const pageTitle = getPluralName(toTitleCase(modelName));
-const icon = 'mdi:users';
+const icon = 'solar:user-circle-linear';
 
 const modelHeaders: Headers[] = [
     { key: 'id', label: 'ID' },
@@ -108,5 +113,10 @@ const {
     isLoading,
     actions,
     paginatorInfo,
+    firstPage,
+    prevPage,
+    nextPage,
+    lastPage,
+    numberPage,
 } = await useModelCrud(modelName, modelFields);
 </script>

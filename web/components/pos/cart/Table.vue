@@ -31,26 +31,21 @@
             <TableBody v-auto-animate>
                 <TableRow v-for="product in products" :key="product.item">
                     <TableCell class="font-bold overflow-hidden">
-                        <div
-                            class="flex items-start gap-2 hover:text-destructive/80 cursor-default"
-                        >
-                            <span
-                                class="flex items-center cursor-pointer"
-                                @click="
-                                    () => cartStore.deleteCartItem(product.item)
-                                "
+                        <div class="flex items-start gap-2 cursor-default">
+                            <div
+                                class="flex items-center justify-center space-x-2"
                             >
-                                <Icon
-                                    name="solar:trash-bin-minimalistic-outline"
-                                    size="1.3rem"
+                                <NuxtImg
+                                    :src="product.image || noImage"
+                                    class="w-[50px] h-auto object-cover rounded"
                                 />
-                            </span>
-                            <div class="flex flex-col">
-                                <div class="text-overflow-hidden">
-                                    {{ product.item }}
-                                </div>
-                                <div class="font-medium">
-                                    {{ currencyFormat(product.price) }}
+                                <div class="flex flex-col">
+                                    <div class="text-overflow-hidden">
+                                        {{ product.item }}
+                                    </div>
+                                    <div class="font-medium">
+                                        {{ currencyFormat(product.price) }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -58,12 +53,39 @@
                     <TableCell>
                         <NumberField :default-value="product.qty" :min="0">
                             <NumberFieldContent>
-                                <NumberFieldDecrement
-                                    @click.prevent="
-                                        cartStore.updateQuantity(product, -1)
-                                    "
-                                />
+                                <template v-if="product.qty > 1">
+                                    <NumberFieldDecrement
+                                        @click.prevent="
+                                            cartStore.updateQuantity(
+                                                product,
+                                                -1,
+                                            )
+                                        "
+                                    />
+                                </template>
+                                <template v-else>
+                                    <span
+                                        :class="
+                                            cn(
+                                                'absolute top-1/2 -translate-y-1/2 left-0 p-3',
+                                            )
+                                        "
+                                        @click="
+                                            () =>
+                                                cartStore.deleteCartItem(
+                                                    product.item,
+                                                )
+                                        "
+                                    >
+                                        <Icon
+                                            name="solar:trash-bin-2-bold"
+                                            size="1.8rem"
+                                            class="text-destructive cursor-pointer"
+                                        />
+                                    </span>
+                                </template>
                                 <NumberFieldInput
+                                    class="font-bold"
                                     :value="product.qty"
                                     @input="
                                         cartStore.onQuantityInput(
@@ -99,9 +121,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { currencyFormat } from '~/utils/pos';
-import { useCart } from '~/stores/useCart';
+
 import type { CartProduct } from '~/types';
+
+import { cn } from '~/lib/utils';
+import { useCart } from '~/stores/useCart';
+import { currencyFormat } from '~/utils/pos';
 
 const cartStore = useCart();
 

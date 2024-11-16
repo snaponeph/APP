@@ -21,9 +21,14 @@
                 :data="modelData"
                 :actions="customActions"
                 :paginator-info="paginatorInfo"
+                :first-page="firstPage"
+                :prev-page="prevPage"
+                :next-page="nextPage"
+                :last-page="lastPage"
+                :number-page="numberPage"
             />
 
-            <ModalView
+            <ModalOrderView
                 v-if="showModal"
                 :visible="showModal"
                 :title="modalTitle"
@@ -100,6 +105,11 @@ const {
     isLoading,
     actions,
     paginatorInfo,
+    firstPage,
+    prevPage,
+    nextPage,
+    lastPage,
+    numberPage,
 } = await useModelCrud(modelName, modelFields);
 
 const customActions = actions.map((action) => {
@@ -108,5 +118,9 @@ const customActions = actions.map((action) => {
         : null;
     action.name === 'print' ? (action.showButton = true) : null;
     return action;
+});
+
+onMounted(() => {
+    fetchDataPaginate(perPage, currentPage);
 });
 </script>
