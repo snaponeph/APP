@@ -9,7 +9,11 @@
                     <TableCRUD
                         :on-create="openCreateModal"
                         :on-refresh="
-                            () => fetchDataPaginate(perPage, currentPage)
+                            () =>
+                                fetchDataPaginate(
+                                    paginatorInfo.perPage,
+                                    paginatorInfo.currentPage,
+                                )
                         "
                     />
                 </template>
@@ -21,11 +25,7 @@
                 :data="modelData"
                 :actions="actions"
                 :paginator-info="paginatorInfo"
-                :first-page="firstPage"
-                :prev-page="prevPage"
-                :next-page="nextPage"
-                :last-page="lastPage"
-                :number-page="numberPage"
+                :pagination-controls="paginationControls"
             />
 
             <ModalCRUD
@@ -101,29 +101,23 @@ const modelFields: CrudModalField[] = [
 ];
 
 const {
-    modelData,
-    selectedModel,
     showModal,
     modalTitle,
-    modalButtonText,
     modalFields,
+    modalButtonText,
     openCreateModal,
-    isConfirmModalOpen,
-    confirmDeletion,
-    cancelDeletion,
-    handleCrudSubmit,
     closeCrudModal,
+    isConfirmModalOpen,
+    cancelDeletion,
+    confirmDeletion,
+    selectedModel,
     fetchDataPaginate,
-    perPage,
-    currentPage,
+    handleCrudSubmit,
     isLoading,
+    modelData,
     actions,
     paginatorInfo,
-    firstPage,
-    prevPage,
-    nextPage,
-    lastPage,
-    numberPage,
+    paginationControls,
 } = await useModelCrud(modelName, modelFields);
 
 const handleSubmit = async (formData: any) => {

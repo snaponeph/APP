@@ -13,16 +13,18 @@
                         class="text-gray-900 dark:text-gray-300"
                     />
                     <span
-                        class="absolute rounded-full bg-white/80 dark:bg-black/80 px-2 -top-2 -right-2 text-black dark:text-white font-bold"
-                        :class="{ hidden: !cartStore.cartItems.length }"
+                        class="absolute rounded-full bg-destructive px-2 -top-1.5 -right-3 text-background dark:text-foreground font-bold"
                     >
-                        {{ cartStore.cartItems.length }}
+                        {{ cartStore.cartItems.length || '' }}
                     </span>
                 </div>
             </DrawerTrigger>
             <DrawerContent
                 class="h-dvh rounded border-2 border-gray-300 dark:border-gray-800"
             >
+                <DrawerTitle visually-hidden />
+                <DrawerDescription visually-hidden />
+
                 <PosCart />
             </DrawerContent>
         </Drawer>
@@ -30,7 +32,13 @@
 </template>
 
 <script setup lang="ts">
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
+import {
+    Drawer,
+    DrawerContent,
+    DrawerTrigger,
+    DrawerDescription,
+    DrawerTitle,
+} from '@/components/ui/drawer';
 
 import { useCart } from '~/stores/useCart';
 

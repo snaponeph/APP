@@ -8,7 +8,11 @@
                 <template #actions>
                     <TableCRUD
                         :on-refresh="
-                            () => fetchDataPaginate(perPage, currentPage)
+                            () =>
+                                fetchDataPaginate(
+                                    paginatorInfo.perPage,
+                                    paginatorInfo.currentPage,
+                                )
                         "
                         :disabled-buttons="['create']"
                     />
@@ -21,11 +25,7 @@
                 :data="modelData"
                 :actions="customActions"
                 :paginator-info="paginatorInfo"
-                :first-page="firstPage"
-                :prev-page="prevPage"
-                :next-page="nextPage"
-                :last-page="lastPage"
-                :number-page="numberPage"
+                :pagination-controls="paginationControls"
             />
         </main>
     </div>
@@ -58,16 +58,10 @@ const modelFields: CrudModalField[] = [];
 const {
     modelData,
     fetchDataPaginate,
-    perPage,
-    currentPage,
     isLoading,
     actions,
     paginatorInfo,
-    firstPage,
-    prevPage,
-    nextPage,
-    lastPage,
-    numberPage,
+    paginationControls,
 } = await useModelCrud(modelName, modelFields);
 
 const customActions = actions.map((action) => {

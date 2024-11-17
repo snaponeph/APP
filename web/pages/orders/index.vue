@@ -8,7 +8,11 @@
                 <template #actions>
                     <TableCRUD
                         :on-refresh="
-                            () => fetchDataPaginate(perPage, currentPage)
+                            () =>
+                                fetchDataPaginate(
+                                    paginatorInfo.perPage,
+                                    paginatorInfo.currentPage,
+                                )
                         "
                         :disabled-buttons="['create']"
                     />
@@ -21,11 +25,7 @@
                 :data="modelData"
                 :actions="customActions"
                 :paginator-info="paginatorInfo"
-                :first-page="firstPage"
-                :prev-page="prevPage"
-                :next-page="nextPage"
-                :last-page="lastPage"
-                :number-page="numberPage"
+                :pagination-controls="paginationControls"
             />
 
             <ModalOrderView
@@ -96,8 +96,6 @@ const modelFields: CrudModalField[] = [];
 const {
     modelData,
     fetchDataPaginate,
-    perPage,
-    currentPage,
     showModal,
     modalTitle,
     selectedModel,
@@ -105,11 +103,7 @@ const {
     isLoading,
     actions,
     paginatorInfo,
-    firstPage,
-    prevPage,
-    nextPage,
-    lastPage,
-    numberPage,
+    paginationControls,
 } = await useModelCrud(modelName, modelFields);
 
 const customActions = actions.map((action) => {
@@ -118,9 +112,5 @@ const customActions = actions.map((action) => {
         : null;
     action.name === 'print' ? (action.showButton = true) : null;
     return action;
-});
-
-onMounted(() => {
-    fetchDataPaginate(perPage, currentPage);
 });
 </script>
