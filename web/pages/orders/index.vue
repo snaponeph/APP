@@ -1,112 +1,51 @@
 <template>
     <div>
-        <main v-auto-animate class="max-w-screen-2xl mx-auto">
-            <TableHeader :title="pageTitle" :icon="icon">
-                <template #actions>
-                    <TableCRUD
-                        :on-refresh="
-                            () =>
-                                fetchDataPaginate(
-                                    paginatorInfo.perPage,
-                                    paginatorInfo.currentPage,
-                                )
-                        "
-                        :disabled-buttons="['create']"
+        <main v-auto-animate class="max-w-screen-2xl mx-auto h-[780px]">
+            <ClientOnly>
+                <PageHeader :page-title="pageTitle" />
+                <div
+                    class="flex flex-col md:grid md:grid-cols-3 md:gap-1 sm:items-start"
+                >
+                    <ChartSimple
+                        v-for="chart in chartData"
+                        :key="chart.title"
+                        :title="chart.title"
+                        :value="chart.value"
+                        :icon="chart.icon"
+                        :color="chart.color"
+                        :border-color="chart.borderColor"
+                        :loading="chart.loading"
                     />
-                </template>
-            </TableHeader>
-
-            <TableContent
-                :headers="modelHeaders"
-                :is-loading="isLoading"
-                :data="modelData"
-                :actions="customActions"
-                :paginator-info="paginatorInfo"
-                :pagination-controls="paginationControls"
-            />
-
-            <ModalOrderView
-                v-if="showModal"
-                :visible="showModal"
-                :title="modalTitle"
-                :data="selectedModel"
-                @close="closeCrudModal"
-            />
+                </div>
+                <PageRouter :item-links="itemLinks" />
+            </ClientOnly>
         </main>
     </div>
 </template>
 
 <script setup lang="ts">
-import type { Headers, CrudModalField } from '~/types';
-
-import { useModelCrud } from '~/composables/useModelCrud';
+import type { Chart } from '~/types';
 
 const modelName = 'order';
 const pageTitle = ref(getPluralName(toTitleCase(modelName)));
-const icon = 'solar:cart-outline';
+const chartData: Ref<Chart[]> = ref([]);
 
-const modelHeaders: Headers[] = [
-    { key: 'id', label: 'ID' },
-    { key: (val) => toBasicDateTime(val.date), label: 'Date' },
+const itemLinks = [
     {
-        key: (val) => (val.customer_guest ? '*******' : 'Guest'),
-        label: 'Customer',
+        icon: 'solar:cart-outline',
+        iconColor: 'text-foreground',
+        path: '/orders/manage-orders',
+        textColor: 'text-foreground',
+        title: 'Manage Orders',
     },
     {
-        key: (val) =>
-            val.order_items
-                .map((item: any) => `${item.product.name}(${item.qty})`)
-                .join(', '),
-        label: 'Items (Qty)',
+        icon: 'solar:user-hand-up-linear',
+        iconColor: 'text-foreground',
+        path: '/customers/manage-customers',
+        textColor: 'text-foreground',
+        title: 'Manage Customers',
     },
-    {
-        key: (val) => {
-            const paymentTypes: Record<number, string> = {
-                0: 'Cash',
-                1: 'Gcash',
-                2: 'Bank Transfer',
-            };
-            return paymentTypes[val.payment];
-        },
-        label: 'Payment',
-    },
-    { key: (val) => currencyFormat(val.total_amount), label: 'Total Amount' },
-    {
-        key: (val) => {
-            const statusTypes: Record<number, string> = {
-                0: 'Completed',
-                1: 'On-Hold',
-                2: 'Cancelled',
-            };
-            return statusTypes[val.status];
-        },
-        label: 'Status',
-    },
-    { key: 'created_at', label: 'Created At' },
 ];
-
-const modelFields: CrudModalField[] = [];
-
-const {
-    actions,
-    closeCrudModal,
-    fetchDataPaginate,
-    isLoading,
-    modalTitle,
-    modelData,
-    paginationControls,
-    paginatorInfo,
-    selectedModel,
-    showModal,
-} = await useModelCrud(modelName, modelFields);
-
-const customActions = actions.map((action) => {
-    action.name === 'delete' || action.name === 'edit'
-        ? (action.showButton = false)
-        : null;
-    action.name === 'view' ? (action.showButton = true) : null;
-    return action;
-});
 
 definePageMeta({
     layout: 'app-layout',
@@ -115,10 +54,20 @@ definePageMeta({
 useHead({
     meta: [
         {
-            content: 'Add, edit, and delete orders',
-            name: 'Manage orders',
+            content: 'Orders page',
+            name: 'Manage orders page',
         },
     ],
     title: pageTitle.value,
+});
+
+onMounted(async () => {
+    const { charts } = await useChartData();
+    chartData.value = charts.filter(
+        (chart) =>
+            chart.title === 'Total Orders' ||
+            chart.title === 'Total Customers' ||
+            chart.title === 'Overall Sales',
+    );
 });
 </script>

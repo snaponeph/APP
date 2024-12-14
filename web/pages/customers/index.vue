@@ -1,105 +1,44 @@
 <template>
     <div>
-        <main v-auto-animate class="max-w-screen-2xl mx-auto">
-            <TableHeader :title="pageTitle" :icon="icon">
-                <template #actions>
-                    <TableCRUD
-                        :on-create="openCreateModal"
-                        :on-refresh="
-                            () =>
-                                fetchDataPaginate(
-                                    paginatorInfo.perPage,
-                                    paginatorInfo.currentPage,
-                                )
-                        "
+        <main v-auto-animate class="max-w-screen-2xl mx-auto h-[780px]">
+            <ClientOnly>
+                <PageHeader :page-title="pageTitle" />
+                <div
+                    class="flex flex-col md:grid md:grid-cols-3 md:gap-1 sm:items-start"
+                >
+                    <ChartSimple
+                        v-for="chart in chartData"
+                        :key="chart.title"
+                        :title="chart.title"
+                        :value="chart.value"
+                        :icon="chart.icon"
+                        :color="chart.color"
+                        :border-color="chart.borderColor"
+                        :loading="chart.loading"
                     />
-                </template>
-            </TableHeader>
-
-            <TableContent
-                :headers="modelHeaders"
-                :is-loading="isLoading"
-                :data="modelData"
-                :actions="actions"
-                :paginator-info="paginatorInfo"
-                :pagination-controls="paginationControls"
-            />
-
-            <ModalCRUD
-                v-if="showModal"
-                :visible="showModal"
-                :title="modalTitle"
-                :fields="modalFields"
-                :initial-values="selectedModel"
-                :submit-button-text="modalButtonText"
-                @submit="handleCrudSubmit"
-                @close="closeCrudModal"
-            />
-
-            <ModalConfirm
-                v-if="isConfirmModalOpen"
-                :is-open="isConfirmModalOpen"
-                title="Confirm Deletion"
-                :message="`Delete ${selectedModel?.user.name || name}?`"
-                @confirm="confirmDeletion"
-                @cancel="cancelDeletion"
-            />
+                </div>
+                <PageRouter :item-links="itemLinks" />
+            </ClientOnly>
         </main>
     </div>
 </template>
 
 <script setup lang="ts">
-import type { Headers, CrudModalField } from '~/types';
-
-import { useModelCrud } from '~/composables/useModelCrud';
+import type { Chart } from '~/types';
 
 const modelName = 'customer';
 const pageTitle = ref(getPluralName(toTitleCase(modelName)));
-const icon = 'solar:user-hand-up-linear';
+const chartData: Ref<Chart[]> = ref([]);
 
-const modelHeaders: Headers[] = [
-    { key: 'id', label: 'ID' },
-    { key: 'user.name', label: 'Name' },
-    { key: 'phone', label: 'Phone' },
-    { key: 'address', label: 'Address' },
-    { key: (val) => formatPrice(val.points), label: 'Points' },
-    { key: 'created_at', label: 'Created At' },
-];
-
-const modelFields: CrudModalField[] = [
+const itemLinks = [
     {
-        label: 'Customer',
-        model: 'User',
-        name: 'user_id',
-        optionTitle: 'name',
-        queryName: 'filterCustomer',
-        required: true,
-        type: 'combobox',
+        icon: 'solar:user-hand-up-linear',
+        iconColor: 'text-foreground',
+        path: '/customers/manage-customers',
+        textColor: 'text-foreground',
+        title: 'Manage Customers',
     },
-    { label: 'Phone', name: 'phone', type: 'text' },
-    { label: 'Address', name: 'address', type: 'text' },
-    { label: 'Points', name: 'points', type: 'text' },
 ];
-
-const {
-    actions,
-    cancelDeletion,
-    closeCrudModal,
-    confirmDeletion,
-    fetchDataPaginate,
-    handleCrudSubmit,
-    isConfirmModalOpen,
-    isLoading,
-    modalButtonText,
-    modalFields,
-    modalTitle,
-    modelData,
-    openCreateModal,
-    paginationControls,
-    paginatorInfo,
-    selectedModel,
-    showModal,
-} = await useModelCrud(modelName, modelFields);
 
 definePageMeta({
     layout: 'app-layout',
@@ -108,10 +47,17 @@ definePageMeta({
 useHead({
     meta: [
         {
-            content: 'Add, edit, and delete customers',
-            name: 'Manage customers',
+            content: 'Customers page',
+            name: 'Manage customers page',
         },
     ],
     title: pageTitle.value,
+});
+
+onMounted(async () => {
+    const { charts } = await useChartData();
+    chartData.value = charts.filter(
+        (chart) => chart.title === 'Total Customers',
+    );
 });
 </script>
