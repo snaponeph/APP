@@ -48,7 +48,7 @@
 			>
 				<img
 					alt="img"
-					:src="require('~/assets/backg.gif')"
+					:src="backgGif"
 				/>
 			</div>
 		</div>
@@ -57,6 +57,7 @@
 
 <script setup lang="ts">
 import { Button } from '~/components/ui/button';
+import backgGif from '~/assets/backg.gif'; // Import the image
 
 const auth = useAuth();
 const showContent = ref(false);
