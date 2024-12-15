@@ -48,8 +48,8 @@
 			>
 				<img
 					alt="img"
-					src="../assets/backg.gif"
-				>
+					:src="require('~/assets/backg.gif')"
+				/>
 			</div>
 		</div>
 	</div>
